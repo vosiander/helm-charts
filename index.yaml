@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  llm-operator:
+  - apiVersion: v2
+    appVersion: 0.0.8
+    created: "2025-09-23T21:39:55.3843248Z"
+    description: A llm operator helm chart for Kubernetes
+    digest: 4942cb9d052929ef827acfc91f716f625de1ea432299d5da10fd739835cfe766
+    name: llm-operator
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/llm-operator-0.1.0/llm-operator-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-09-23T21:39:55.384329939Z"
