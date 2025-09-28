@@ -30,7 +30,7 @@ rules:
 
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [ops.veitosiander.de]
-    resources: [litellmkeys, litellmmodels, ollamamodels]
+    resources: [litellmkeys, litellmmodels, ollamamodels, n8napikeys, n8nadminusersn8nadminusers]
     verbs: [list, watch, get, create, update, patch, delete, deletecollection]
 
   # Core Kubernetes resources
