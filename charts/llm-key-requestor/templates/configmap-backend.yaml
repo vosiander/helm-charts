@@ -1,0 +1,29 @@
+{{- if .Values.backend.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "llm-key-requestor.fullname" . }}-backend-config
+  labels:
+    {{- include "llm-key-requestor.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backend
+data:
+  config.yaml: |
+    # LLM Key Requestor Configuration
+    
+    # LiteLLM Backend Configuration
+    litellm:
+      # Base URL for LiteLLM backend
+      base_url: {{ .Values.backend.config.litellm.base_url | quote }}
+      # API key for LiteLLM backend
+      api_key: {{ .Values.backend.config.litellm.api_key | quote }}
+    
+    # Available LLM Models
+    models:
+    {{- range .Values.backend.config.models }}
+      - id: {{ .id | quote }}
+        title: {{ .title | quote }}
+        icon: {{ .icon | quote }}
+        color: {{ .color | quote }}
+        description: {{ .description | quote }}
+    {{- end }}
+{{- end }}

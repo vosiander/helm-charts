@@ -1,0 +1,221 @@
+# Default values for llm-key-requestor.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Global settings
+replicaCount: 1
+
+# Image pull secrets for private registries
+imagePullSecrets: []
+
+# Override chart name
+nameOverride: ""
+fullnameOverride: ""
+
+# Service account configuration
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+# Pod annotations and labels
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# Node selector, tolerations, and affinity
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Autoscaling configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Frontend configuration
+frontend:
+  enabled: true
+  
+  image:
+    repository: ghcr.io/vosiander/llm-key-requestor/frontend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  service:
+    type: ClusterIP
+    port: 5173
+  
+  # Extra environment variables for frontend
+  # Example:
+  # extraEnv:
+  #   VITE_API_URL: "https://api.example.com"
+  #   VITE_CUSTOM_VAR: "value"
+  extraEnv: {}
+  
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: app.example.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+      # - secretName: frontend-tls
+      #   hosts:
+      #     - app.example.local
+
+# Backend configuration
+backend:
+  enabled: true
+  
+  image:
+    repository: ghcr.io/vosiander/llm-key-requestor/backend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  service:
+    type: ClusterIP
+    port: 8000
+  
+  # Backend configuration file (config.yaml)
+  # This will be mounted as a ConfigMap
+  config:
+    litellm:
+      base_url: "http://litellm:4000"
+      api_key: ""
+    
+    models:
+      - id: "openai-gpt4"
+        title: "OpenAI GPT-4"
+        icon: "simple-icons:openai"
+        color: "#412991"
+        description: "Advanced reasoning and complex problem-solving capabilities with extended context window."
+      
+      - id: "openai-gpt3.5"
+        title: "OpenAI GPT-3.5"
+        icon: "simple-icons:openai"
+        color: "#412991"
+        description: "Fast and efficient model for general-purpose tasks and conversational AI."
+      
+      - id: "claude-3"
+        title: "Claude 3 (Anthropic)"
+        icon: "simple-icons:anthropic"
+        color: "#D4A574"
+        description: "Anthropic's most capable model with strong reasoning and analysis capabilities."
+      
+      - id: "gemini-pro"
+        title: "Google Gemini Pro"
+        icon: "simple-icons:google"
+        color: "#4285F4"
+        description: "Google's multimodal AI with excellent performance across text, code, and reasoning tasks."
+      
+      - id: "llama-2"
+        title: "Meta Llama 2"
+        icon: "simple-icons:meta"
+        color: "#0866FF"
+        description: "Open-source model optimized for dialogue and general-purpose applications."
+      
+      - id: "mistral-7b"
+        title: "Mistral 7B"
+        icon: "simple-icons:mistral"
+        color: "#F2A73B"
+        description: "Efficient open-weight model with strong performance for its size."
+      
+      - id: "grok"
+        title: "xAI Grok"
+        icon: "mdi:robot"
+        color: "#000000"
+        description: "xAI's conversational AI with real-time knowledge and unique personality."
+      
+      - id: "cohere-command"
+        title: "Cohere Command"
+        icon: "mdi:message-processing"
+        color: "#39594D"
+        description: "Enterprise-focused model for text generation and analysis tasks."
+  
+  # Extra environment variables for backend
+  # Example:
+  # extraEnv:
+  #   LITELLM_BASE_URL: "http://custom-litellm:4000"
+  #   LITELLM_API_KEY: "sk-custom-key"
+  #   CUSTOM_VAR: "value"
+  extraEnv: {}
+  
+  resources: {}
+    # limits:
+    #   cpu: 200m
+    #   memory: 256Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: api.example.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+      # - secretName: backend-tls
+      #   hosts:
+      #     - api.example.local
