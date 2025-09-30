@@ -12,6 +12,17 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/docling-0.1.0/docling-0.1.0.tgz
     version: 0.1.0
+  llm-key-requestor:
+  - apiVersion: v2
+    appVersion: 0.1.1
+    created: "2025-09-30T14:41:09.828789525Z"
+    description: A Helm chart for llm-key-requestor
+    digest: e133fdea22ed251afe465add4031e6b9864f929346d7538f08ee5aca602497a3
+    name: llm-key-requestor
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/llm-key-requestor-0.1.0/llm-key-requestor-0.1.0.tgz
+    version: 0.1.0
   llm-operator:
   - apiVersion: v2
     appVersion: 0.3.1
@@ -33,4 +44,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/llm-operator-0.1.0/llm-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-28T20:45:36.979094559Z"
+generated: "2025-09-30T14:41:09.828798843Z"
