@@ -19,6 +19,11 @@ serviceAccount:
   annotations: {}
   name: ""
 
+# RBAC configuration
+rbac:
+  # Create Role and RoleBinding for secret management
+  create: true
+
 # Pod annotations and labels
 podAnnotations: {}
 podLabels: {}

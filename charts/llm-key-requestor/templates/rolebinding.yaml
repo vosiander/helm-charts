@@ -1,0 +1,16 @@
+{{- if and .Values.serviceAccount.create .Values.rbac.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "llm-key-requestor.fullname" . }}
+  labels:
+    {{- include "llm-key-requestor.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "llm-key-requestor.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "llm-key-requestor.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
