@@ -1,11 +1,11 @@
-{{- if .Values.backend.enabled -}}
+{{- if .Values.admin.enabled -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "llm-key-requestor.fullname" . }}-backend
+  name: {{ include "llm-key-requestor.fullname" . }}-admin
   labels:
     {{- include "llm-key-requestor.labels" . | nindent 4 }}
-    app.kubernetes.io/component: backend
+    app.kubernetes.io/component: admin
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
@@ -13,17 +13,16 @@ spec:
   selector:
     matchLabels:
       {{- include "llm-key-requestor.selectorLabels" . | nindent 6 }}
-      app.kubernetes.io/component: backend
+      app.kubernetes.io/component: admin
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/configmap-backend.yaml") . | sha256sum }}
-        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
+      {{- end }}
       labels:
         {{- include "llm-key-requestor.labels" . | nindent 8 }}
-        app.kubernetes.io/component: backend
+        app.kubernetes.io/component: admin
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -38,53 +37,29 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
-        - name: backend
+        - name: admin
           {{- with .Values.securityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          image: "{{ .Values.admin.image.repository }}:{{ .Values.admin.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.admin.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.backend.service.port }}
+              containerPort: {{ .Values.admin.service.port }}
               protocol: TCP
-          env:
-            - name: CONFIG
-              value: "/app/config.yaml"
-            - name: PYTHONUNBUFFERED
-              value: "1"
-            {{- if .Values.admin.enabled }}
-            - name: ADMIN_USERNAME
-              value: {{ .Values.admin.auth.username | quote }}
-            - name: ADMIN_PASSWORD
-              value: {{ .Values.admin.auth.password | quote }}
-            {{- end }}
-            {{- range $key, $value := .Values.backend.extraEnv }}
-            - name: {{ $key }}
-              value: {{ $value | quote }}
-            {{- end }}
-          volumeMounts:
-            - name: config
-              mountPath: /app/config.yaml
-              subPath: config.yaml
-              readOnly: true
-          {{- with .Values.backend.livenessProbe }}
+          {{- with .Values.admin.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.backend.readinessProbe }}
+          {{- with .Values.admin.readinessProbe }}
           readinessProbe:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.backend.resources }}
+          {{- with .Values.admin.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-      volumes:
-        - name: config
-          configMap:
-            name: {{ include "llm-key-requestor.fullname" . }}-backend-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

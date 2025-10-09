@@ -1,11 +1,12 @@
 # LLM Key Requestor Helm Chart
 
-This Helm chart deploys the LLM Key Requestor application with separate frontend and backend components.
+This Helm chart deploys the LLM Key Requestor application with separate frontend, backend, and admin components.
 
 ## Features
 
-- Separate deployments for frontend and backend
-- Two independent ingress resources (one for frontend, one for backend API)
+- Separate deployments for frontend, backend, and admin panel
+- Three independent ingress resources (frontend, backend API, admin panel)
+- Configurable admin credentials via values.yaml
 - Backend configuration via ConfigMap (overridable through values.yaml)
 - Support for extra environment variables via KEY: VALUE pairs
 - Full support for liveness/readiness probes
@@ -22,6 +23,57 @@ helm install llm-key-requestor ./helm -f custom-values.yaml
 ```
 
 ## Configuration
+
+### Admin Panel Configuration
+
+```yaml
+admin:
+  enabled: true
+  
+  # Configure admin credentials
+  # IMPORTANT: Change these in production!
+  auth:
+    username: "admin"
+    password: "your-secure-password"
+  
+  image:
+    repository: ghcr.io/vosiander/llm-key-requestor/admin
+    tag: "latest"
+  
+  ingress:
+    enabled: true
+    className: "nginx"
+    hosts:
+      - host: admin.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+```
+
+**Setting admin credentials via command line:**
+
+```bash
+# Install with custom admin credentials
+helm install llm-key-requestor ./helm \
+  --set admin.auth.username=myadmin \
+  --set admin.auth.password=SecurePass123!
+
+# Or upgrade existing release
+helm upgrade llm-key-requestor ./helm \
+  --set admin.auth.username=myadmin \
+  --set admin.auth.password=SecurePass123!
+```
+
+**⚠️ Security Note:** In production, consider using Kubernetes Secrets instead of plain values:
+
+```bash
+# Create a secret for admin credentials
+kubectl create secret generic admin-credentials \
+  --from-literal=username=admin \
+  --from-literal=password=SecurePass123!
+
+# Then reference it in your deployment (requires custom values)
+```
 
 ### Frontend Configuration
 
@@ -101,9 +153,10 @@ backend:
 
 ## Ingress Configuration
 
-The chart creates two separate ingress resources:
+The chart creates three separate ingress resources:
 - `<release-name>-frontend` for the frontend application
 - `<release-name>-backend` for the backend API
+- `<release-name>-admin` for the admin panel
 
 Example with TLS:
 
@@ -139,6 +192,22 @@ backend:
       - secretName: backend-tls
         hosts:
           - api.example.com
+
+admin:
+  ingress:
+    enabled: true
+    className: "nginx"
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: admin.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: admin-tls
+        hosts:
+          - admin.example.com
 ```
 
 ## Backend Configuration Override

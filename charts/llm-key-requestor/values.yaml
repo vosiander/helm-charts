@@ -110,6 +110,64 @@ frontend:
       #   hosts:
       #     - app.example.local
 
+# Admin Panel configuration
+admin:
+  enabled: true
+  
+  # Admin authentication credentials
+  # IMPORTANT: Change these in production!
+  # Can be overridden via: --set admin.auth.username=myuser --set admin.auth.password=mypass
+  auth:
+    username: "admin"
+    password: "change-me-in-production"
+  
+  image:
+    repository: ghcr.io/vosiander/llm-key-requestor/admin
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  
+  service:
+    type: ClusterIP
+    port: 80
+  
+  resources: {}
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+  
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 10
+  
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+  
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: admin.example.local
+        paths:
+          - path: /
+            pathType: Prefix
+    tls: []
+      # - secretName: admin-tls
+      #   hosts:
+      #     - admin.example.local
+
 # Backend configuration
 backend:
   enabled: true
@@ -126,6 +184,11 @@ backend:
   # Backend configuration file (config.yaml)
   # This will be mounted as a ConfigMap
   config:
+    # Admin panel authentication (references admin.auth values)
+    admin:
+      username: "admin"
+      password: "change-me-in-production"
+    
     litellm:
       base_url: "http://litellm:4000"
       api_key: ""
