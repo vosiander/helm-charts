@@ -130,6 +130,13 @@ admin:
     type: ClusterIP
     port: 5174
   
+  # Extra environment variables for admin panel
+  # Example:
+  # extraEnv:
+  #   VITE_ADMIN_API_URL: "https://api.example.com"
+  #   VITE_CUSTOM_VAR: "value"
+  extraEnv: {}
+  
   resources: {}
     # limits:
     #   cpu: 100m
