@@ -249,6 +249,10 @@ backend:
         color: "#39594D"
         description: "Enterprise-focused model for text generation and analysis tasks."
   
+  # CORS origins configuration (semicolon-separated list)
+  # Example: "https://admin.example.com;http://localhost:5174"
+  corsOrigins: ""
+  
   # Extra environment variables for backend
   # Example:
   # extraEnv:

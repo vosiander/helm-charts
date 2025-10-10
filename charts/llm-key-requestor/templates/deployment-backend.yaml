@@ -60,6 +60,10 @@ spec:
             - name: ADMIN_PASSWORD
               value: {{ .Values.admin.auth.password | quote }}
             {{- end }}
+            {{- if .Values.backend.corsOrigins }}
+            - name: CORS_ORIGINS
+              value: {{ .Values.backend.corsOrigins | quote }}
+            {{- end }}
             {{- range $key, $value := .Values.backend.extraEnv }}
             - name: {{ $key }}
               value: {{ $value | quote }}
