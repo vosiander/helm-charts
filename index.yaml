@@ -14,6 +14,16 @@ entries:
     version: 0.1.0
   llm-key-requestor:
   - apiVersion: v2
+    appVersion: 0.14.3
+    created: "2025-10-10T23:23:58.494806743Z"
+    description: A Helm chart for llm-key-requestor
+    digest: 7b52e61998a6a2dbc2dea89c2953f4c60c0a862db9d2a1a2c68ed166cbdcd8f8
+    name: llm-key-requestor
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/llm-key-requestor-0.4.1/llm-key-requestor-0.4.1.tgz
+    version: 0.4.1
+  - apiVersion: v2
     appVersion: 0.14.1
     created: "2025-10-10T22:00:14.97573593Z"
     description: A Helm chart for llm-key-requestor
@@ -104,4 +114,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/llm-operator-0.1.0/llm-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-10T23:23:22.366440042Z"
+generated: "2025-10-10T23:23:58.494848351Z"
