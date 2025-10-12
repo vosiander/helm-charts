@@ -73,6 +73,11 @@ spec:
               mountPath: /app/config.yaml
               subPath: config.yaml
               readOnly: true
+            {{- if .Values.backend.certificates.enabled }}
+            - name: certs
+              mountPath: /certs
+              readOnly: true
+            {{- end }}
           {{- with .Values.backend.livenessProbe }}
           livenessProbe:
             {{- toYaml . | nindent 12 }}
@@ -89,6 +94,11 @@ spec:
         - name: config
           configMap:
             name: {{ include "llm-key-requestor.fullname" . }}-backend-config
+        {{- if .Values.backend.certificates.enabled }}
+        - name: certs
+          secret:
+            secretName: {{ include "llm-key-requestor.fullname" . }}-certs
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

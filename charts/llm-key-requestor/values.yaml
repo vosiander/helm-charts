@@ -261,6 +261,24 @@ backend:
   #   CUSTOM_VAR: "value"
   extraEnv: {}
   
+  # Certificates configuration
+  # Provide certificate content here and they will be mounted to /certs in the container
+  certificates:
+    enabled: false
+    # Add your certificates as key-value pairs
+    # The key will be the filename, the value will be the file content
+    # Example:
+    # files:
+    #   ca-cert.pem: |
+    #     -----BEGIN CERTIFICATE-----
+    #     MIIDXTCCAkWgAwIBAgIJAKZ...
+    #     -----END CERTIFICATE-----
+    #   client-cert.pem: |
+    #     -----BEGIN CERTIFICATE-----
+    #     ...
+    #     -----END CERTIFICATE-----
+    files: {}
+  
   resources: {}
     # limits:
     #   cpu: 200m
