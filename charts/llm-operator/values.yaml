@@ -10,6 +10,16 @@ env:
   LOG_LEVEL: "DEBUG"
   # Add more environment variables as key:value pairs
 
+# Lock configuration for distributed locking
+lock:
+  provider: "memory"  # Options: "memory" or "redis"
+  timeout: 30
+  redis:
+    host: ""  # If empty, defaults to the deployed Redis service
+    port: 6379
+    db: 0
+    password: ""
+
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   repository: ghcr.io/vosiander/llm-operator
@@ -126,3 +136,14 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Redis subchart configuration
+redis:
+  enabled: false
+  image:
+    repository: bitnamilegacy/redis
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: false

@@ -42,13 +42,29 @@ spec:
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          {{- if .Values.env }}
           env:
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
-          {{- end }}
+            {{- if .Values.lock }}
+            - name: LOCK_PROVIDER
+              value: {{ .Values.lock.provider | quote }}
+            - name: LOCK_TIMEOUT
+              value: {{ .Values.lock.timeout | quote }}
+            {{- if eq .Values.lock.provider "redis" }}
+            - name: REDIS_HOST
+              value: {{ .Values.lock.redis.host | default (printf "%s-redis-master" (include "helm.fullname" .)) | quote }}
+            - name: REDIS_PORT
+              value: {{ .Values.lock.redis.port | quote }}
+            - name: REDIS_DB
+              value: {{ .Values.lock.redis.db | quote }}
+            {{- if .Values.lock.redis.password }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.lock.redis.password | quote }}
+            {{- end }}
+            {{- end }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

@@ -30,7 +30,17 @@ rules:
 
   # Application: read-only access for watching cluster-wide.
   - apiGroups: [ops.veitosiander.de]
-    resources: [litellmkeys, litellmmodels, ollamamodels, n8napikeys, n8nadminusersn8nadminusers]
+    resources:
+      - litellmkeys
+      - litellmmodels
+      - ollamamodels
+      - n8napikeys
+      - n8nadminusers
+      - openwebuibanners
+      - openwebuichannels
+      - openwebuigroups
+      - openwebuiprompts
+      - openwebuitoolservers
     verbs: [list, watch, get, create, update, patch, delete, deletecollection]
 
   # Core Kubernetes resources
