@@ -115,6 +115,21 @@ entries:
     version: 0.1.0
   llm-operator:
   - apiVersion: v2
+    appVersion: 0.6.0
+    created: "2025-10-14T21:33:34.045951349Z"
+    dependencies:
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ~19.0.0
+    description: A llm operator helm chart for Kubernetes
+    digest: 5efbf9b8eb63edcc2dc42b0e4c36057d85f6c32c3ce1fa20b824b16dcfd3f71b
+    name: llm-operator
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/llm-operator-0.2.0/llm-operator-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 0.3.1
     created: "2025-09-28T20:45:36.979087616Z"
     description: A llm operator helm chart for Kubernetes
@@ -134,4 +149,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/llm-operator-0.1.0/llm-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-13T12:15:33.125988129Z"
+generated: "2025-10-14T21:33:34.045977658Z"
