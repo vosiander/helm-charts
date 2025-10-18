@@ -28,6 +28,7 @@ rules:
     resources:
       - litellmkeys
       - litellmmodels
+      - litellmteams
       - ollamamodels
       - n8napikeys
       - n8nadminusers
