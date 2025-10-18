@@ -1,0 +1,77 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your Tinyauth authentication service has been deployed.
+
+1. Get the application URL:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "tinyauth.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "tinyauth.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "tinyauth.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if contains "ClusterIP" .Values.service.type }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "tinyauth.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:3000 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 3000:$CONTAINER_PORT
+{{- end }}
+
+2. User Management:
+   - Users are configured via the USERS environment variable or USERS_FILE
+   - Format: username:bcrypthash:totp (comma-separated for multiple users)
+   - Generate bcrypt hash: Use online tools or bcrypt CLI
+   - TOTP is optional for 2FA support
+   
+   Example user format:
+   admin:$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy:
+
+3. Integration with Nginx Proxy Manager:
+   - Create a new proxy host pointing to this service
+   - Backend: {{ include "tinyauth.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+   - Enable WebSocket support if needed
+   - Configure SSL/TLS certificates in Nginx Proxy Manager
+
+4. Configuration:
+   {{- if .Values.persistence.enabled }}
+   ✓ Database persistence: ENABLED
+     - Data stored in PVC: {{ include "tinyauth.fullname" . }}
+     - Mount path: /data
+   {{- else }}
+   ⚠ Database persistence: DISABLED
+     - Data will be lost on pod restart
+     - To enable: Set persistence.enabled=true in values
+   {{- end }}
+   
+   {{- if .Values.ldap.enabled }}
+   ✓ LDAP authentication: ENABLED
+     - Server: {{ .Values.ldap.address }}
+   {{- end }}
+   
+   {{- if gt (len .Values.oauth.providers) 0 }}
+   ✓ OAuth providers configured: {{ len .Values.oauth.providers }}
+   {{- end }}
+
+5. Important Notes:
+   - Set APP_URL environment variable to your external URL (required)
+   - Configure TRUSTED_PROXIES if behind a reverse proxy
+   - Use SECURE_COOKIE=true for production HTTPS deployments
+   - Review security settings before production use
+
+6. Troubleshooting:
+   - Check pod logs: kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "tinyauth.name" . }}
+   - Check pod status: kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "tinyauth.name" . }}
+   - Test health endpoint: kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "tinyauth.fullname" . }} 3000:3000
+     Then visit http://localhost:3000/api/health
+
+For more information:
+- Documentation: https://github.com/steveiliop56/tinyauth
+- Issues: https://github.com/steveiliop56/tinyauth/issues

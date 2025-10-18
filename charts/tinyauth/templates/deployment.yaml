@@ -1,0 +1,184 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tinyauth.fullname" . }}
+  labels:
+    {{- include "tinyauth.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "tinyauth.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "tinyauth.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "tinyauth.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if or .Values.env .Values.tinyauth.users .Values.tinyauth.usersFile .Values.ldap.enabled .Values.oauth.providers .Values.extraEnv }}
+          env:
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- if .Values.tinyauth.users }}
+            - name: USERS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "tinyauth.fullname" . }}
+                  key: users
+            {{- else if .Values.tinyauth.usersFile }}
+            - name: USERS_FILE
+              value: {{ .Values.tinyauth.usersFile | quote }}
+            {{- end }}
+            {{- if .Values.ldap.enabled }}
+            {{- if .Values.ldap.address }}
+            - name: LDAP_ADDRESS
+              value: {{ .Values.ldap.address | quote }}
+            {{- end }}
+            {{- if .Values.ldap.baseDn }}
+            - name: LDAP_BASE_DN
+              value: {{ .Values.ldap.baseDn | quote }}
+            {{- end }}
+            {{- if .Values.ldap.bindDn }}
+            - name: LDAP_BIND_DN
+              value: {{ .Values.ldap.bindDn | quote }}
+            {{- end }}
+            {{- if .Values.ldap.bindPassword }}
+            - name: LDAP_BIND_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "tinyauth.fullname" . }}
+                  key: ldap-bind-password
+            {{- else if .Values.ldap.bindPasswordFile }}
+            - name: LDAP_BIND_PASSWORD_FILE
+              value: {{ .Values.ldap.bindPasswordFile | quote }}
+            {{- end }}
+            {{- if .Values.ldap.insecure }}
+            - name: LDAP_INSECURE
+              value: "true"
+            {{- end }}
+            {{- if .Values.ldap.searchFilter }}
+            - name: LDAP_SEARCH_FILTER
+              value: {{ .Values.ldap.searchFilter | quote }}
+            {{- end }}
+            {{- end }}
+            {{- range $id, $config := .Values.oauth.providers }}
+            - name: PROVIDERS_{{ $id | upper }}_CLIENT_ID
+              value: {{ $config.clientId | quote }}
+            {{- if $config.clientSecret }}
+            - name: PROVIDERS_{{ $id | upper }}_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "tinyauth.fullname" $ }}
+                  key: oauth-{{ $id }}-secret
+            {{- else if $config.clientSecretFile }}
+            - name: PROVIDERS_{{ $id | upper }}_CLIENT_SECRET_FILE
+              value: {{ $config.clientSecretFile | quote }}
+            {{- end }}
+            {{- if $config.authUrl }}
+            - name: PROVIDERS_{{ $id | upper }}_AUTH_URL
+              value: {{ $config.authUrl | quote }}
+            {{- end }}
+            {{- if $config.tokenUrl }}
+            - name: PROVIDERS_{{ $id | upper }}_TOKEN_URL
+              value: {{ $config.tokenUrl | quote }}
+            {{- end }}
+            {{- if $config.userInfoUrl }}
+            - name: PROVIDERS_{{ $id | upper }}_USER_INFO_URL
+              value: {{ $config.userInfoUrl | quote }}
+            {{- end }}
+            {{- if $config.redirectUrl }}
+            - name: PROVIDERS_{{ $id | upper }}_REDIRECT_URL
+              value: {{ $config.redirectUrl | quote }}
+            {{- end }}
+            {{- if $config.scopes }}
+            - name: PROVIDERS_{{ $id | upper }}_SCOPES
+              value: {{ $config.scopes | quote }}
+            {{- end }}
+            {{- if $config.name }}
+            - name: PROVIDERS_{{ $id | upper }}_NAME
+              value: {{ $config.name | quote }}
+            {{- end }}
+            {{- if $config.insecureSkipVerify }}
+            - name: PROVIDERS_{{ $id | upper }}_INSECURE_SKIP_VERIFY
+              value: "true"
+            {{- end }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if or .Values.persistence.enabled .Values.volumeMounts }}
+          volumeMounts:
+            {{- if .Values.persistence.enabled }}
+            - name: data
+              mountPath: /data
+            {{- end }}
+            {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- end }}
+      {{- if or .Values.persistence.enabled .Values.volumes }}
+      volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "tinyauth.fullname" . }}
+        {{- end }}
+        {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
