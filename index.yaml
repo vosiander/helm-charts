@@ -179,4 +179,15 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/llm-operator-0.1.0/llm-operator-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-18T17:46:34.360601555Z"
+  tinyauth:
+  - apiVersion: v2
+    appVersion: v4.0.1
+    created: "2025-10-18T21:24:53.812419067Z"
+    description: A Helm chart for Tinyauth - lightweight authentication service
+    digest: 559414bac6f268bf5f751fd7588d8cb8cc2bb580c4d5fb6a8c1a34632a6c3506
+    name: tinyauth
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
+    version: 0.1.0
+generated: "2025-10-18T21:24:53.812454093Z"
