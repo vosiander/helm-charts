@@ -182,6 +182,16 @@ entries:
   tinyauth:
   - apiVersion: v2
     appVersion: v4.0.1
+    created: "2025-10-19T12:12:09.691339277Z"
+    description: A Helm chart for Tinyauth - lightweight authentication service
+    digest: 89fed6567fb2a2a62a5a4cdea1729e0e15c7a5c5f6801792cf6543403a430e88
+    name: tinyauth
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.2/tinyauth-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: v4.0.1
     created: "2025-10-19T12:08:40.020705759Z"
     description: A Helm chart for Tinyauth - lightweight authentication service
     digest: 724bf1fca33a75877d372cc4da0294d1c3da5cd252b071cd217421d73d03eadb
@@ -200,4 +210,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-19T12:08:40.020756493Z"
+generated: "2025-10-19T12:12:09.691374603Z"
