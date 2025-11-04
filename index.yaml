@@ -12,6 +12,18 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/docling-0.1.0/docling-0.1.0.tgz
     version: 0.1.0
+  github-releases:
+  - apiVersion: v2
+    appVersion: latest
+    created: "2025-11-04T20:51:19.732155162Z"
+    description: A Helm chart for GitHub Releases MCP Server - Track GitHub release
+      tags via Model Context Protocol
+    digest: ef7dd7a4d816b5fd36cdfc58e911200282940fd1ac2bd7186feaa2633c683a8c
+    name: github-releases
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/github-releases-0.1.0/github-releases-0.1.0.tgz
+    version: 0.1.0
   llm-key-requestor:
   - apiVersion: v2
     appVersion: 0.14.7
@@ -210,4 +222,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
     version: 0.1.0
-generated: "2025-10-19T12:12:09.691374603Z"
+generated: "2025-11-04T20:51:19.732199825Z"
