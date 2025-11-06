@@ -37,6 +37,8 @@ rules:
       - openwebuigroups
       - openwebuiprompts
       - openwebuitoolservers
+      - uptimekumasetups
+      - uptimekumamonitors
     verbs: [list, watch, get, create, update, patch, delete]
 
   # Application: Secrets management for n8n_api_key operator
