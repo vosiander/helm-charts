@@ -26,19 +26,9 @@ rules:
   # Application: Custom resources managed by this operator
   - apiGroups: [ops.veitosiander.de]
     resources:
-      - litellmkeys
-      - litellmmodels
-      - litellmteams
-      - ollamamodels
-      - n8napikeys
-      - n8nadminusers
-      - openwebuibanners
-      - openwebuichannels
-      - openwebuigroups
-      - openwebuiprompts
-      - openwebuitoolservers
-      - uptimekumasetups
-      - uptimekumamonitors
+      {{- range .Values.customResources }}
+      - {{ . }}
+      {{- end }}
     verbs: [list, watch, get, create, update, patch, delete]
 
   # Application: Secrets management for n8n_api_key operator
