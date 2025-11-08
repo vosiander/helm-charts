@@ -221,6 +221,18 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/llm-operator-0.1.0/llm-operator-0.1.0.tgz
     version: 0.1.0
+  open-webui-backup:
+  - apiVersion: v2
+    appVersion: 0.7.1
+    created: "2025-11-08T21:15:56.786208164Z"
+    description: A Helm chart for Open WebUI Backup - Backup and restore tool for
+      Open WebUI
+    digest: 87ff06077d0b5535586c2ec9243ad303e3aebc8994a81cdfc965c101ea2d6ef6
+    name: open-webui-backup
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/open-webui-backup-0.1.0/open-webui-backup-0.1.0.tgz
+    version: 0.1.0
   tinyauth:
   - apiVersion: v2
     appVersion: v4.0.1
@@ -252,4 +264,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-06T22:39:58.449127293Z"
+generated: "2025-11-08T21:15:56.786243881Z"
