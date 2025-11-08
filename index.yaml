@@ -224,6 +224,17 @@ entries:
   open-webui-backup:
   - apiVersion: v2
     appVersion: 0.7.1
+    created: "2025-11-08T22:35:31.338605183Z"
+    description: A Helm chart for Open WebUI Backup - Backup and restore tool for
+      Open WebUI
+    digest: ce06ffcf9b0a60a34d7d79aa2dbf4677fa6d34b41368e8027228c3c6fa1557f0
+    name: open-webui-backup
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/open-webui-backup-0.1.2/open-webui-backup-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: 0.7.1
     created: "2025-11-08T22:23:54.655830908Z"
     description: A Helm chart for Open WebUI Backup - Backup and restore tool for
       Open WebUI
@@ -275,4 +286,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-08T22:23:54.655879939Z"
+generated: "2025-11-08T22:35:31.338649376Z"
