@@ -1,0 +1,13 @@
+{{- if .Values.customCACerts }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "open-webui-backup.fullname" . }}-cacerts
+  labels:
+    {{- include "open-webui-backup.labels" . | nindent 4 }}
+data:
+  {{- range $index, $cert := .Values.customCACerts }}
+  ca-cert-{{ $index }}.crt: |
+{{ $cert | indent 4 }}
+  {{- end }}
+{{- end }}

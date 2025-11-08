@@ -1,0 +1,154 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "open-webui-backup.fullname" . }}
+  labels:
+    {{- include "open-webui-backup.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "open-webui-backup.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "open-webui-backup.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "open-webui-backup.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.customCACerts }}
+      initContainers:
+        - name: install-ca-certs
+          image: alpine:3.18
+          command:
+            - sh
+            - -c
+            - |
+              cp /tmp/custom-ca-certs/* /usr/local/share/ca-certificates/ 2>/dev/null || true
+              update-ca-certificates
+              cp /etc/ssl/certs/* /shared-ca-certs/
+          volumeMounts:
+            - name: custom-ca-certs
+              mountPath: /tmp/custom-ca-certs
+              readOnly: true
+            - name: shared-ca-certs
+              mountPath: /shared-ca-certs
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+              protocol: TCP
+          env:
+            {{- if .Values.openwebui.url }}
+            - name: OPEN_WEBUI_URL
+              value: {{ .Values.openwebui.url | quote }}
+            {{- end }}
+            {{- if .Values.openwebui.apiKey }}
+            - name: OPEN_WEBUI_API_KEY
+              value: {{ .Values.openwebui.apiKey | quote }}
+            {{- end }}
+            {{- if .Values.openwebui.serverPort }}
+            - name: OWUI_SERVER_PORT
+              value: {{ .Values.openwebui.serverPort | quote }}
+            {{- end }}
+            {{- if .Values.openwebui.backupsDir }}
+            - name: OWUI_BACKUPS_DIR
+              value: {{ .Values.openwebui.backupsDir | quote }}
+            {{- end }}
+            {{- if .Values.openwebui.encryptedRecipient }}
+            - name: OWUI_ENCRYPTED_RECIPIENT
+              value: {{ .Values.openwebui.encryptedRecipient | quote }}
+            {{- end }}
+            {{- if .Values.openwebui.decryptIdentity }}
+            - name: OWUI_DECRYPT_IDENTITY
+              value: {{ .Values.openwebui.decryptIdentity | quote }}
+            {{- end }}
+            {{- if .Values.proxy.httpProxy }}
+            - name: HTTP_PROXY
+              value: {{ .Values.proxy.httpProxy | quote }}
+            - name: http_proxy
+              value: {{ .Values.proxy.httpProxy | quote }}
+            {{- end }}
+            {{- if .Values.proxy.httpsProxy }}
+            - name: HTTPS_PROXY
+              value: {{ .Values.proxy.httpsProxy | quote }}
+            - name: https_proxy
+              value: {{ .Values.proxy.httpsProxy | quote }}
+            {{- end }}
+            {{- if .Values.proxy.noProxy }}
+            - name: NO_PROXY
+              value: {{ .Values.proxy.noProxy | quote }}
+            - name: no_proxy
+              value: {{ .Values.proxy.noProxy | quote }}
+            {{- end }}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.customCACerts }}
+            - name: custom-ca-certs
+              mountPath: /usr/local/share/ca-certificates/custom
+              readOnly: true
+            {{- end }}
+            {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        {{- if .Values.customCACerts }}
+        - name: custom-ca-certs
+          configMap:
+            name: {{ include "open-webui-backup.fullname" . }}-cacerts
+        - name: shared-ca-certs
+          emptyDir: {}
+        {{- end }}
+        {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
