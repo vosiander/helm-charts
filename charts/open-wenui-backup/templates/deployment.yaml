@@ -32,24 +32,6 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if .Values.customCACerts }}
-      initContainers:
-        - name: install-ca-certs
-          image: alpine:3.18
-          command:
-            - sh
-            - -c
-            - |
-              cp /tmp/custom-ca-certs/* /usr/local/share/ca-certificates/ 2>/dev/null || true
-              update-ca-certificates
-              cp /etc/ssl/certs/* /shared-ca-certs/
-          volumeMounts:
-            - name: custom-ca-certs
-              mountPath: /tmp/custom-ca-certs
-              readOnly: true
-            - name: shared-ca-certs
-              mountPath: /shared-ca-certs
-      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           {{- with .Values.securityContext }}
@@ -58,6 +40,16 @@ spec:
           {{- end }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.customCACerts }}
+          command:
+            - sh
+            - -c
+            - |
+              if [ -d /usr/local/share/ca-certificates/custom ]; then
+                update-ca-certificates
+              fi
+              exec ./owuiback
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.containerPort }}
@@ -134,8 +126,6 @@ spec:
         - name: custom-ca-certs
           configMap:
             name: {{ include "open-webui-backup.fullname" . }}-cacerts
-        - name: shared-ca-certs
-          emptyDir: {}
         {{- end }}
         {{- with .Values.volumes }}
         {{- toYaml . | nindent 8 }}
