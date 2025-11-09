@@ -1,0 +1,79 @@
+# Default values for llm-monitor
+
+imagePullSecrets:
+  enabled: true
+  ghcr:
+    username: ""
+    password: ""
+    email: ""
+
+backend:
+  image:
+    repository: ghcr.io/vosiander/llm-monitor/backend
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+
+frontend:
+  image:
+    repository: ghcr.io/vosiander/llm-monitor/frontend
+    tag: latest
+    pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 300m
+      memory: 768Mi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+
+service:
+  type: ClusterIP
+  frontend:
+    port: 3000
+  backend:
+    port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  hosts:
+    - host: llm-monitor.local
+      paths:
+        - path: /()(.*)
+          pathType: ImplementationSpecific
+          service: frontend
+          port: 3000
+        - path: /api(/|$)(.*)
+          pathType: ImplementationSpecific
+          service: backend
+          port: 80
+
+# Network Discovery Configuration
+discovery:
+  # CIDR ranges to scan for Ollama hosts (comma-separated)
+  cidrRanges: "192.168.1.0/24"
+  # Discovery interval in seconds
+  intervalSeconds: 60
+  # Maximum parallel connections during scanning
+  maxParallel: 10
+  # Connection timeout in seconds
+  timeoutSeconds: 2.0
+  # Port to scan for Ollama
+  port: 11434
+
+# CORS Configuration
+cors:
+  allowedOrigins: "http://localhost:3000,http://localhost:5173"
+
+# Security Configuration
+security:
+  trustedHosts: "localhost,127.0.0.1"

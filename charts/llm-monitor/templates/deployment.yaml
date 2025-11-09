@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      {{- if .Values.imagePullSecrets.enabled }}
+      imagePullSecrets:
+        - name: {{ .Release.Name }}-registry
+      {{- end }}
+      containers:
+        - name: backend
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          ports:
+            - containerPort: 80
+              name: http
+          resources:
+            {{- toYaml .Values.backend.resources | nindent 12 }}
+          env:
+            # Discovery configuration
+            - name: DISCOVERY_CIDR_RANGES
+              value: "{{ .Values.discovery.cidrRanges }}"
+            - name: DISCOVERY_INTERVAL_SECONDS
+              value: "{{ .Values.discovery.intervalSeconds }}"
+            - name: DISCOVERY_MAX_PARALLEL
+              value: "{{ .Values.discovery.maxParallel }}"
+            - name: DISCOVERY_TIMEOUT_SECONDS
+              value: "{{ .Values.discovery.timeoutSeconds }}"
+            - name: DISCOVERY_PORT
+              value: "{{ .Values.discovery.port }}"
+            # CORS configuration
+            - name: ALLOWED_ORIGINS
+              value: "{{ .Values.cors.allowedOrigins }}"
+            # Security configuration
+            - name: TRUSTED_HOSTS
+              value: "{{ .Values.security.trustedHosts }}"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+        - name: frontend
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          imagePullPolicy: {{ .Values.frontend.image.pullPolicy }}
+          command:
+            - "bash"
+            - "-c"
+            - "npm run dev -- --host 0.0.0.0 --port 3000"
+          ports:
+            - containerPort: 3000
+              name: http-frontend
+          resources:
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
+          env:
+            - name: VITE_LLMMONITOR_URL
+              value: "/api"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http-frontend
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http-frontend
+            initialDelaySeconds: 15
+            periodSeconds: 5
