@@ -9,7 +9,7 @@ imagePullSecrets:
 
 backend:
   image:
-    repository: ghcr.io/vosiander/llm-monitor/backend
+    repository: ghcr.io/vosiander/llm-monitor/api
     tag: latest
     pullPolicy: IfNotPresent
   resources:
@@ -22,7 +22,7 @@ backend:
 
 frontend:
   image:
-    repository: ghcr.io/vosiander/llm-monitor/frontend
+    repository: ghcr.io/vosiander/llm-monitor/ui
     tag: latest
     pullPolicy: IfNotPresent
   resources:
