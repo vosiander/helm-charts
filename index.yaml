@@ -125,6 +125,18 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/llm-key-requestor-0.1.0/llm-key-requestor-0.1.0.tgz
     version: 0.1.0
+  llm-monitor:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2025-11-09T15:57:44.209574346Z"
+    description: A Helm chart for LLM Monitor with frontend and backend in a single
+      pod
+    digest: bd75e7f5e95d385a67e416c40c569b7db036815daaf356d9ef228b2ed72fd2fd
+    name: llm-monitor
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/llm-monitor-0.1.0/llm-monitor-0.1.0.tgz
+    version: 0.1.0
   llm-operator:
   - apiVersion: v2
     appVersion: 0.12.0
@@ -286,4 +298,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-08T22:35:31.338649376Z"
+generated: "2025-11-09T15:57:44.209617818Z"
