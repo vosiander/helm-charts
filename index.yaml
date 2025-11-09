@@ -127,6 +127,17 @@ entries:
     version: 0.1.0
   llm-monitor:
   - apiVersion: v2
+    appVersion: 0.1.2
+    created: "2025-11-09T19:51:42.543850953Z"
+    description: A Helm chart for LLM Monitor with frontend and backend in a single
+      pod
+    digest: a3fab5366ccbcbadcb9f27c3a050eebf455cd9c53da90234823403976809130c
+    name: llm-monitor
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/llm-monitor-0.2.0/llm-monitor-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 0.1.0
     created: "2025-11-09T15:57:44.209574346Z"
     description: A Helm chart for LLM Monitor with frontend and backend in a single
@@ -298,4 +309,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-09T15:57:44.209617818Z"
+generated: "2025-11-09T19:51:42.543897821Z"
