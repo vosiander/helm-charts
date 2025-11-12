@@ -45,6 +45,11 @@ spec:
             # Security configuration
             - name: TRUSTED_HOSTS
               value: "{{ .Values.security.trustedHosts }}"
+            # Custom environment variables
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /health
@@ -73,6 +78,11 @@ spec:
           env:
             - name: VITE_LLMMONITOR_URL
               value: "/api"
+            # Custom environment variables
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /
