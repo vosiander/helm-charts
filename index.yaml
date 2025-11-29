@@ -292,6 +292,17 @@ entries:
   pocketbase:
   - apiVersion: v2
     appVersion: 0.34.0
+    created: "2025-11-29T12:12:03.685984797Z"
+    description: A Helm chart for PocketBase - an open source backend with embedded
+      database, auth management, and REST API
+    digest: 164b2e584731e8b8bccfff5c03ff4890fe01adeef9659a141214dd5dcded2cbb
+    name: pocketbase
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/pocketbase-0.1.1/pocketbase-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: 0.34.0
     created: "2025-11-29T11:55:48.823630771Z"
     description: A Helm chart for PocketBase - an open source backend with embedded
       database, auth management, and REST API
@@ -332,4 +343,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-29T11:55:48.823688008Z"
+generated: "2025-11-29T12:12:03.68604494Z"
