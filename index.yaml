@@ -289,6 +289,18 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/open-webui-backup-0.1.0/open-webui-backup-0.1.0.tgz
     version: 0.1.0
+  pocketbase:
+  - apiVersion: v2
+    appVersion: 0.34.0
+    created: "2025-11-29T11:55:48.823630771Z"
+    description: A Helm chart for PocketBase - an open source backend with embedded
+      database, auth management, and REST API
+    digest: ccc479294a4ca0bcfdf35fc43a04692cf03c1f323bcc67009fbc9a4bb1c8c94f
+    name: pocketbase
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/pocketbase-0.1.0/pocketbase-0.1.0.tgz
+    version: 0.1.0
   tinyauth:
   - apiVersion: v2
     appVersion: v4.0.1
@@ -320,4 +332,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
     version: 0.1.0
-generated: "2025-11-12T22:14:54.441541687Z"
+generated: "2025-11-29T11:55:48.823688008Z"
