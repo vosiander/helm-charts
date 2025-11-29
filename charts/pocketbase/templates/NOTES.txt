@@ -1,0 +1,59 @@
+1. Get the application URL by running these commands:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "pocketbase.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "pocketbase.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "pocketbase.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if contains "ClusterIP" .Values.service.type }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "pocketbase.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8090 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8090:$CONTAINER_PORT
+{{- end }}
+
+2. PocketBase Admin UI is available at:
+   - Access the admin dashboard at: /_/
+
+{{- if .Values.pocketbase.admin.email }}
+3. Admin credentials have been configured:
+   - Email: {{ .Values.pocketbase.admin.email }}
+   - Password: {{ if .Values.pocketbase.admin.password }}*** (check your values.yaml){{ else }}not set{{ end }}
+{{- else }}
+3. No admin credentials configured. You'll need to create an admin user on first login.
+{{- end }}
+
+{{- if .Values.persistence.enabled }}
+4. Data persistence is ENABLED:
+   - PVC: {{ include "pocketbase.fullname" . }}
+   - Size: {{ .Values.persistence.size }}
+   - Path: /pocketbase
+{{- else }}
+4. Data persistence is DISABLED:
+   - WARNING: Data will be lost when the pod restarts!
+   - Consider enabling persistence for production use.
+{{- end }}
+
+{{- if .Values.pocketbase.encryptionKey }}
+5. Settings encryption is ENABLED using inline encryption key.
+{{- else if .Values.pocketbase.existingSecret }}
+5. Settings encryption is ENABLED using secret: {{ .Values.pocketbase.existingSecret }}
+{{- else }}
+5. Settings encryption is NOT configured:
+   - IMPORTANT: Enable encryption in production by setting pocketbase.encryptionKey or pocketbase.existingSecret
+{{- end }}
+
+{{- if .Values.certificates.enabled }}
+6. Custom certificates are mounted at /certs
+{{- end }}
+
+For more information about PocketBase, visit: https://pocketbase.io/docs

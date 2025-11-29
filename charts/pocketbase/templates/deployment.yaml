@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pocketbase.fullname" . }}
+  labels:
+    {{- include "pocketbase.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "pocketbase.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "pocketbase.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "pocketbase.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["/pocketbase/pocketbase"]
+          args:
+            - "serve"
+            - "--http=0.0.0.0:8090"
+            - "--encryptionEnv=PB_ENCRYPTION_KEY"
+            {{- range .Values.pocketbase.extraArgs }}
+            - {{ . | quote }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8090
+              protocol: TCP
+          env:
+            {{- if .Values.pocketbase.debug }}
+            - name: POCKETBASE_DEBUG
+              value: "true"
+            {{- end }}
+            {{- if .Values.pocketbase.admin.email }}
+            - name: POCKETBASE_ADMIN_EMAIL
+              value: {{ .Values.pocketbase.admin.email | quote }}
+            {{- end }}
+            {{- if .Values.pocketbase.admin.password }}
+            - name: POCKETBASE_ADMIN_PASSWORD
+              value: {{ .Values.pocketbase.admin.password | quote }}
+            {{- end }}
+            {{- if .Values.pocketbase.admin.upsert }}
+            - name: POCKETBASE_ADMIN_UPSERT
+              value: "true"
+            {{- end }}
+            {{- if .Values.pocketbase.existingSecret }}
+            - name: PB_ENCRYPTION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.pocketbase.existingSecret }}
+                  key: PB_ENCRYPTION_KEY
+            {{- else if .Values.pocketbase.encryptionKey }}
+            - name: PB_ENCRYPTION_KEY
+              value: {{ .Values.pocketbase.encryptionKey | quote }}
+            {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            {{- if .Values.persistence.enabled }}
+            - name: data
+              mountPath: /pocketbase
+            {{- end }}
+            {{- if .Values.certificates.enabled }}
+            - name: certs
+              mountPath: /certs
+              readOnly: true
+            {{- end }}
+            {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+      volumes:
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ include "pocketbase.fullname" . }}
+        {{- end }}
+        {{- if .Values.certificates.enabled }}
+        - name: certs
+          secret:
+            secretName: {{ include "pocketbase.fullname" . }}-certs
+        {{- end }}
+        {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
