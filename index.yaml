@@ -358,4 +358,24 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/tinyauth-0.1.0/tinyauth-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-08T15:52:54.045144793Z"
+  yamtrack:
+  - apiVersion: v2
+    appVersion: 0.24.11
+    created: "2026-01-08T22:29:59.690703473Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: ~16.0.0
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ~19.0.0
+    description: A Helm chart for Yamtrack media tracker
+    digest: 915fc5f2a9f9ece0f6de345e9b6687f8956310e567332b45235ef609a7330cea
+    name: yamtrack
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/yamtrack-0.1.0/yamtrack-0.1.0.tgz
+    version: 0.1.0
+generated: "2026-01-08T22:29:59.690753365Z"
