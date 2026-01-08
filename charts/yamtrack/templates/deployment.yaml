@@ -1,0 +1,145 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "yamtrack.fullname" . }}
+  labels:
+    {{- include "yamtrack.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "yamtrack.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "yamtrack.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "yamtrack.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          {{- with .Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- /* Environment variables from env hashmap */}}
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- /* SECRET from secret */}}
+            {{- if or .Values.yamtrack.secret .Values.yamtrack.existingSecret }}
+            - name: SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "yamtrack.secretName" . }}
+                  key: {{ .Values.yamtrack.existingSecretKey | default "secret" }}
+            {{- end }}
+            {{- /* Database configuration */}}
+            {{- if or .Values.postgresql.enabled .Values.database.host }}
+            - name: DB_HOST
+              value: {{ include "yamtrack.postgresql.host" . | quote }}
+            - name: DB_PORT
+              value: {{ include "yamtrack.postgresql.port" . | quote }}
+            - name: DB_NAME
+              value: {{ include "yamtrack.postgresql.database" . | quote }}
+            - name: DB_USER
+              value: {{ include "yamtrack.postgresql.user" . | quote }}
+            {{- if .Values.postgresql.enabled }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgresql
+                  key: password
+            {{- else if .Values.database.password }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "yamtrack.secretName" . }}
+                  key: db-password
+            {{- end }}
+            {{- if .Values.database.sslMode }}
+            - name: DB_SSL_MODE
+              value: {{ .Values.database.sslMode | quote }}
+            {{- end }}
+            {{- if .Values.database.sslCertMode }}
+            - name: DB_SSL_CERT_MODE
+              value: {{ .Values.database.sslCertMode | quote }}
+            {{- end }}
+            {{- end }}
+            {{- /* Redis configuration */}}
+            {{- if or .Values.redis.enabled .Values.externalRedis.url }}
+            - name: REDIS_URL
+              value: {{ include "yamtrack.redis.url" . | quote }}
+            {{- end }}
+            {{- if .Values.externalRedis.prefix }}
+            - name: REDIS_PREFIX
+              value: {{ .Values.externalRedis.prefix | quote }}
+            {{- end }}
+            {{- /* Secret environment variables */}}
+            {{- range $key, $value := .Values.secretEnv }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "yamtrack.secretName" $ }}
+                  key: {{ $key | lower | replace "_" "-" }}
+            {{- end }}
+            {{- /* Extra environment variables */}}
+            {{- with .Values.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.volumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

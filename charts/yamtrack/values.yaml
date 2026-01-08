@@ -1,0 +1,259 @@
+# Default values for yamtrack.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/fuzzygrim/yamtrack
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# ============================================================================
+# Yamtrack Configuration
+# ============================================================================
+
+# Environment variables (non-sensitive) - passed directly to the container
+# Reference: https://github.com/FuzzyGrim/Yamtrack/wiki/Environment-Variables
+env:
+  TZ: "UTC"
+  PUID: "1000"
+  PGID: "1000"
+  # Django settings
+  REGISTRATION: "true"
+  DEBUG: "false"
+  ADMIN_ENABLED: "false"
+  TRACK_TIME: "true"
+  WEB_CONCURRENCY: "1"
+  # URLS: ""  # Shortcut for CSRF and ALLOWED_HOSTS (e.g., https://yamtrack.example.com)
+  # ALLOWED_HOSTS: "*"
+  # CSRF: ""  # Comma-separated trusted origins for POST requests
+  # BASE_URL: ""  # For hosting under subpath (e.g., /yamtrack)
+  # Media source NSFW settings
+  TMDB_NSFW: "false"
+  MAL_NSFW: "false"
+  MU_NSFW: "false"
+  IGDB_NSFW: "false"
+  # TMDB_LANG: ""  # Language code (e.g., en-US)
+  # Social authentication
+  # SOCIAL_PROVIDERS: ""  # Comma-separated list of providers
+  # ACCOUNT_DEFAULT_HTTP_PROTOCOL: ""  # https if using OIDC with https redirect_uri
+  # ACCOUNT_LOGOUT_REDIRECT_URL: ""  # Absolute URL for logout redirect
+  # SOCIALACCOUNT_ONLY: "false"  # Disable local auth when using social auth only
+  # REDIRECT_LOGIN_TO_SSO: "false"  # Auto-redirect to SSO provider
+  # Celery health check
+  # HEALTHCHECK_CELERY_PING_TIMEOUT: "1"
+  # SSL certificates
+  # REQUESTS_CA_BUNDLE: ""  # Path to custom CA certificate bundle
+
+# Yamtrack secret configuration
+yamtrack:
+  # REQUIRED: Django SECRET_KEY for cryptographic signing
+  # Should be a long random string
+  secret: ""
+  # Use existing secret instead of creating one
+  existingSecret: ""
+  existingSecretKey: "secret"
+
+# Database configuration
+database:
+  # External database connection settings
+  # Only used when postgresql.enabled is false
+  host: ""
+  port: "5432"
+  name: "yamtrack"
+  user: "yamtrack"
+  password: ""
+  # SSL settings for external PostgreSQL
+  sslMode: ""  # disable, allow, prefer, require, verify-ca, verify-full
+  sslCertMode: ""
+
+# Redis configuration
+# Only used when redis.enabled is false
+externalRedis:
+  url: ""  # Full Redis URL (e.g., redis://redis.example.com:6379)
+  prefix: ""  # Optional prefix for Redis keys
+
+# Sensitive environment variables - stored in Kubernetes Secret
+# These are API keys and secrets that should not be in plain text
+secretEnv: {}
+  # Media source API keys (defaults are provided by yamtrack, but recommended to get your own)
+  # TMDB_API: ""
+  # MAL_API: ""
+  # IGDB_ID: ""
+  # IGDB_SECRET: ""
+  # HARDCOVER_API: ""
+  # COMICVINE_API: ""
+  # Media import API keys
+  # TRAKT_API: ""
+  # SIMKL_ID: ""
+  # SIMKL_SECRET: ""
+  # Social authentication
+  # SOCIALACCOUNT_PROVIDERS: ""  # JSON configuration for social providers
+
+# Additional environment variables (raw Kubernetes format)
+extraEnv: []
+  # - name: CUSTOM_VAR
+  #   value: "custom-value"
+  # - name: SECRET_VAR
+  #   valueFrom:
+  #     secretKeyRef:
+  #       name: my-secret
+  #       key: my-key
+
+# ============================================================================
+# Service Configuration
+# ============================================================================
+
+service:
+  type: ClusterIP
+  port: 8000
+
+# ============================================================================
+# Ingress Configuration
+# ============================================================================
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: yamtrack.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+    # - secretName: yamtrack-tls
+    #   hosts:
+    #     - yamtrack.local
+
+# Gateway API HTTPRoute configuration
+httpRoute:
+  enabled: false
+  annotations: {}
+  parentRefs:
+    - name: gateway
+      sectionName: http
+  hostnames:
+    - yamtrack.local
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+
+# ============================================================================
+# Resource Configuration
+# ============================================================================
+
+resources: {}
+  # limits:
+  #   cpu: 500m
+  #   memory: 512Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 256Mi
+
+# Probes - Yamtrack uses /health endpoint
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 10
+
+# ============================================================================
+# Autoscaling Configuration
+# ============================================================================
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# ============================================================================
+# Volume Configuration
+# ============================================================================
+
+volumes: []
+  # - name: foo
+  #   secret:
+  #     secretName: mysecret
+  #     optional: false
+
+volumeMounts: []
+  # - name: foo
+  #   mountPath: "/etc/foo"
+  #   readOnly: true
+
+# ============================================================================
+# Scheduling Configuration
+# ============================================================================
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# ============================================================================
+# PostgreSQL Subchart Configuration (Bitnami)
+# ============================================================================
+
+postgresql:
+  enabled: true
+  auth:
+    username: yamtrack
+    password: yamtrack
+    database: yamtrack
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+
+# ============================================================================
+# Redis Subchart Configuration (Bitnami)
+# ============================================================================
+
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: false
