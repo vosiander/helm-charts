@@ -41,7 +41,7 @@ securityContext: {}
 # Environment variables (non-sensitive) - passed directly to the container
 # Reference: https://github.com/FuzzyGrim/Yamtrack/wiki/Environment-Variables
 env:
-  TZ: "UTC"
+  TZ: "Europe/Berlin"
   PUID: "1000"
   PGID: "1000"
   # Django settings
@@ -132,7 +132,7 @@ extraEnv: []
 
 service:
   type: ClusterIP
-  port: 8000
+  port: 8001
 
 # ============================================================================
 # Ingress Configuration
@@ -184,15 +184,15 @@ resources: {}
 # Probes - Yamtrack uses /health endpoint
 livenessProbe:
   httpGet:
-    path: /health
+    path: /
     port: http
   initialDelaySeconds: 30
   periodSeconds: 10
 readinessProbe:
   httpGet:
-    path: /health
+    path: /
     port: http
-  initialDelaySeconds: 5
+  initialDelaySeconds: 15
   periodSeconds: 10
 
 # ============================================================================

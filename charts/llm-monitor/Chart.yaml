@@ -3,4 +3,4 @@ name: llm-monitor
 description: A Helm chart for LLM Monitor with frontend and backend in a single pod
 type: application
 version: 0.2.1
-appVersion: "0.4.0"
+appVersion: "0.9.0"
