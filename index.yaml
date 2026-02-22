@@ -361,6 +361,25 @@ entries:
   yamtrack:
   - apiVersion: v2
     appVersion: 0.24.11
+    created: "2026-02-22T22:19:36.757372647Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: ~16.0.0
+    - condition: redis.enabled
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: ~19.0.0
+    description: A Helm chart for Yamtrack media tracker
+    digest: 4158b35b7a48deb35d015c8e0230ce4df618514e8e0e80df1884cf070d6d184b
+    name: yamtrack
+    type: application
+    urls:
+    - https://github.com/vosiander/helm-charts/releases/download/yamtrack-0.1.3/yamtrack-0.1.3.tgz
+    version: 0.1.3
+  - apiVersion: v2
+    appVersion: 0.24.11
     created: "2026-01-09T13:40:00.10381955Z"
     dependencies:
     - condition: postgresql.enabled
@@ -416,4 +435,4 @@ entries:
     urls:
     - https://github.com/vosiander/helm-charts/releases/download/yamtrack-0.1.0/yamtrack-0.1.0.tgz
     version: 0.1.0
-generated: "2026-01-09T13:40:00.103896563Z"
+generated: "2026-02-22T22:19:36.757450463Z"
